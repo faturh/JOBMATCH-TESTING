@@ -1,0 +1,117 @@
+Buat database namanya jobmatch
+isi tabelnya:
+1. Tabel applicants
+CREATE TABLE applicants (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    full_name VARCHAR(255),
+    photo VARCHAR(255), -- path ke file foto
+    date_of_birth DATE,
+    gender ENUM('male', 'female', 'other'),
+    email VARCHAR(255) UNIQUE,
+    phone_number VARCHAR(50),
+    address TEXT,
+    cv_file VARCHAR(255), -- path file
+    portfolio_file VARCHAR(255), -- path file
+    desired_position VARCHAR(255),
+    type_of_work VARCHAR(100),
+    location VARCHAR(100),
+    salary_min INT,
+    salary_max INT,
+    availability_date DATE,
+    available_now BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+2.Tabel educations
+CREATE TABLE educations (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    applicant_id INT,
+    institution VARCHAR(255),
+    major VARCHAR(255),
+    graduation_year YEAR,
+    FOREIGN KEY (applicant_id) REFERENCES applicants(id) ON DELETE CASCADE
+);
+
+3.Tabel experiences
+CREATE TABLE experiences (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    applicant_id INT,
+    company VARCHAR(255),
+    position VARCHAR(255),
+    working_period VARCHAR(50), -- bisa format: "2021-2023"
+    description TEXT,
+    FOREIGN KEY (applicant_id) REFERENCES applicants(id) ON DELETE CASCADE
+);
+
+4.Tabel skills
+CREATE TABLE skills (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) UNIQUE
+);
+
+5.Tabel applicant_soft_skills
+CREATE TABLE applicant_soft_skills (
+    applicant_id INT,
+    skill_id INT,
+    PRIMARY KEY (applicant_id, skill_id),
+    FOREIGN KEY (applicant_id) REFERENCES applicants(id) ON DELETE CASCADE,
+    FOREIGN KEY (skill_id) REFERENCES skills(id) ON DELETE CASCADE
+);
+
+6.Tabel applicant_hard_skills
+CREATE TABLE applicant_hard_skills (
+    applicant_id INT,
+    skill_id INT,
+    PRIMARY KEY (applicant_id, skill_id),
+    FOREIGN KEY (applicant_id) REFERENCES applicants(id) ON DELETE CASCADE,
+    FOREIGN KEY (skill_id) REFERENCES skills(id) ON DELETE CASCADE
+);
+
+7. Tabel certifications
+CREATE TABLE certifications (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    applicant_id INT,
+    file VARCHAR(255), -- path file sertifikat
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (applicant_id) REFERENCES applicants(id) ON DELETE CASCADE
+);
+
+8.Tabel compannies
+CREATE TABLE companies (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    email VARCHAR(255) NOT NULL UNIQUE,
+    password VARCHAR(255) NOT NULL, -- untuk autentikasi
+    address TEXT,
+    industry VARCHAR(100), -- bidang industri perusahaan
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+9.Tabel jobs
+CREATE TABLE jobs (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    company_id INT NOT NULL,
+    title VARCHAR(255) NOT NULL, -- nama/judul pekerjaan
+    description TEXT,
+    type_of_work VARCHAR(100), -- fulltime/parttime/internship/etc
+    location VARCHAR(100),
+    gaji_min INT,
+    gaji_max INT,
+    bidang VARCHAR(100), -- bidang pekerjaan (harus match dengan bidang pelamar)
+    availability_date DATE,
+    available_now BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (company_id) REFERENCES companies(id) ON DELETE CASCADE
+);
+
+10.Tabel job_skills
+CREATE TABLE job_skills (
+    job_id INT NOT NULL,
+    skill_id INT NOT NULL,
+    PRIMARY KEY (job_id, skill_id),
+    FOREIGN KEY (job_id) REFERENCES jobs(id) ON DELETE CASCADE,
+    FOREIGN KEY (skill_id) REFERENCES skills(id) ON DELETE CASCADE
+);
